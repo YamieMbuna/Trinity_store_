@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deliveries - Trinity Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        :root {
+            --deep-blue: #1a237e;
+            --malawi-red: #b71c1c;
+            --malawi-green: #1b5e20;
+            --usa-blue: #0d47a1;
+            --white: #ffffff;
+            --black: #000000;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .flag-stripe {
+            height: 4px;
+            background: linear-gradient(90deg, 
+                var(--black) 0%, 
+                var(--black) 25%, 
+                var(--malawi-red) 25%, 
+                var(--malawi-red) 50%, 
+                var(--green) 50%, 
+                var(--green) 75%, 
+                var(--usa-blue) 75%, 
+                var(--usa-blue) 100%);
+        }
+        .tracking-progress {
+            position: relative;
+        }
+        .tracking-progress::before {
+            content: '';
+            position: absolute;
+            top: 2rem;
+            left: 1.5rem;
+            height: calc(100% - 4rem);
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+        .tracking-step.completed .tracking-icon {
+            background-color: var(--malawi-green);
+            color: white;
+        }
+        .tracking-step.active .tracking-icon {
+            background-color: var(--deep-blue);
+            color: white;
+        }
+        .tracking-step.active ~ .tracking-step .tracking-icon {
+            background-color: #e5e7eb;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between">
+                <div class="flex space-x-7">
+                    <div>
+                        <a href="index.html" class="flex items-center py-4 px-2">
+                            <img src="Attachments\Icons\trinity-store.png" alt="Trinity Store Logo" class="h-8 w-8 mr-2">
+                            <span class="font-semibold text-gray-900 text-lg">Trinity Store</span>
+                        </a>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-1">
+                        <a href="index.html" class="py-4 px-2 text-gray-500 hover:text-blue-700 transition duration-300">Home</a>
+                        <a href="categories.html" class="py-4 px-2 text-gray-500 hover:text-blue-700 transition duration-300">Categories</a>
+                        <a href="payments.html" class="py-4 px-2 text-gray-500 hover:text-blue-700 transition duration-300">Payments</a>
+                        <a href="deliveries.html" class="py-4 px-2 text-blue-700 border-b-4 border-blue-700 font-semibold">Deliveries</a>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-3">
+                    <a href="#" class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-blue-700 hover:text-white transition duration-300">
+                        <i data-feather="user"></i>
+                    </a>
+                    <a href="#" class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-blue-700 hover:text-white transition duration-300">
+                        <i data-feather="shopping-cart"></i>
+                    </a>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="outline-none mobile-menu-button">
+                        <i data-feather="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="flag-stripe"></div>
+    </nav>
+
+    <!-- Delivery Hero Section -->
+    <div class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-bold mb-6">Track Your Package</h1>
+            <p class="text-xl max-w-3xl mx-auto">Real-time updates on your cross-border deliveries between Malawi and USA</p>
+        </div>
+    </div>
+
+    <!-- Tracking Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto bg-gray-50 rounded-xl p-8 shadow-sm">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Track Your Order</h2>
+                <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                    <input type="text" placeholder="Enter tracking number" class="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow">
+                    <button class="bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition duration-300">Track</button>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                    <div class="flex items-start">
+                        <i data-feather="info" class="text-blue-700 mr-3"></i>
+                        <div>
+                            <h3 class="font-semibold text-blue-800">Tracking Example</h3>
+                            <p class="text-blue-700">Try tracking number: TR12345678</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tracking Progress -->
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">Order #TR12345678 Status</h3>
+                <div class="tracking-progress pl-8 mb-8">
+                    <!-- Step 1 -->
+                    <div class="tracking-step completed mb-8">
+                        <div class="flex items-start">
+                            <div class="tracking-icon bg-green-100 text-green-700 rounded-full w-10 h-10 flex items-center justify-center mr-4 relative z-10">
+                                <i data-feather="check" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Order Processed</h4>
+                                <p class="text-gray-600 text-sm">June 15, 2023 - 10:30 AM</p>
+                                <p class="text-gray-600 mt-1">Your order has been received and is being prepared for shipment.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="tracking-step completed mb-8">
+                        <div class="flex items-start">
+                            <div class="tracking-icon bg-green-100 text-green-700 rounded-full w-10 h-10 flex items-center justify-center mr-4 relative z-10">
+                                <i data-feather="check" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Shipped from USA</h4>
+                                <p class="text-gray-600 text-sm">June 17, 2023 - 2:15 PM</p>
+                                <p class="text-gray-600 mt-1">Your package has left our USA warehouse and is en route to Malawi.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="tracking-step active mb-8">
+                        <div class="flex items-start">
+                            <div class="tracking-icon bg-blue-100 text-blue-700 rounded-full w-10 h-10 flex items-center justify-center mr-4 relative z-10">
+                                <i data-feather="truck" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">In Transit</h4>
+                                <p class="text-gray-600 text-sm">June 20, 2023 - 9:45 AM</p>
+                                <p class="text-gray-600 mt-1">Your package is currently in transit to Malawi. Expected arrival at customs: June 23.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div class="tracking-step">
+                        <div class="flex items-start">
+                            <div class="tracking-icon bg-gray-100 text-gray-400 rounded-full w-10 h-10 flex items-center justify-center mr-4 relative z-10">
+                                <i data-feather="package" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Out for Delivery</h4>
+                                <p class="text-gray-600 text-sm">Estimated: June 25, 2023</p>
+                                <p class="text-gray-600 mt-1">After clearing customs, your package will be out for delivery.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delivery Details -->
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i data-feather="map-pin" class="text-red-500 mr-2"></i>
+                            <span>Shipping From</span>
+                        </h3>
+                        <p class="font-medium">Trinity Store USA Warehouse</p>
+                        <p class="text-gray-600">123 Commerce Street</p>
+                        <p class="text-gray-600">Chicago, IL 60601</p>
+                        <p class="text-gray-600">United States</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i data-feather="home" class="text-green-500 mr-2"></i>
+                            <span>Shipping To</span>
+                        </h3>
+                        <p class="font-medium">Grace Banda</p>
+                        <p class="text-gray-600">456 Independence Drive</p>
+                        <p class="text-gray-600">Lilongwe</p>
+                        <p class="text-gray-600">Malawi</p>
+                    </div>
+                </div>
+                
+                <!-- Estimated Delivery -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                            <i data-feather="clock" class="text-blue-700"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-blue-800">Estimated Delivery Date</h3>
+                            <p class="text-blue-700">June 26, 2023 - June 28, 2023</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shipping Information -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Shipping Information</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Shipping Option 1 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                            <i data-feather="truck" class="text-blue-700"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Standard Shipping</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Economical option with reliable delivery times</p>
+                    <ul class="space-y-2 mb-4">
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>USA to Malawi: 10-14 business days</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Malawi to USA: 12-16 business days</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Tracking included</span>
+                        </li>
+                    </ul>
+                    <p class="font-semibold text-blue-700">From $9.99</p>
+                </div>
+                
+                <!-- Shipping Option 2 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                            <i data-feather="zap" class="text-green-700"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Express Shipping</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Faster delivery for urgent shipments</p>
+                    <ul class="space-y-2 mb-4">
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>USA to Malawi: 5-7 business days</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Malawi to USA: 7-10 business days</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Priority processing</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Real-time tracking</span>
+                        </li>
+                    </ul>
+                    <p class="font-semibold text-blue-700">From $24.99</p>
+                </div>
+                
+                <!-- Shipping Option 3 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-purple-100 p-2 rounded-full mr-3">
+                            <i data-feather="shield" class="text-purple-700"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Premium Shipping</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">White-glove service with expedited customs</p>
+                    <ul class="space-y-2 mb-4">
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>USA to Malawi: 3-5 business days</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Malawi to USA: 5-7 business days</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Dedicated support</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Customs clearance included</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check" class="text-green-500 mr-2 w-4 h-4 mt-0.5"></i>
+                            <span>Signature required</span>
+                        </li>
+                    </ul>
+                    <p class="font-semibold text-blue-700">From $49.99</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Customs Information -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
+                <div class="mb-8 lg:mb-0">
+                    <h2 class="text-3xl font-bold mb-6">Customs & Duties Information</h2>
+                    <p class="text-gray-600 mb-6">We handle all customs documentation to ensure smooth cross-border delivery. However, recipients may be responsible for any applicable duties and taxes imposed by their country.</p>
+                    <ul class="space-y-4 mb-6">
+                        <li class="flex items-start">
+                            <i data-feather="file-text" class="text-blue-500 mr-3"></i>
+                            <span>All necessary customs forms are prepared by us</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="alert-circle" class="text-yellow-500 mr-3"></i>
+                            <span>Duties and taxes vary by country and product type</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="dollar-sign" class="text-green-500 mr-3"></i>
+                            <span>You'll be notified if any additional payment is required</span>
+                        </li>
+                    </ul>
+                    <a href="#" class="inline-flex items-center text-blue-700 font-semibold hover:text-blue-800">
+                        Learn more about customs
+                        <i data-feather="arrow-right" class="ml-2"></i>
+                    </a>
+                </div>
+                <div>
+                    <img src="data/images/customs.jpg" alt="Customs Information" class="rounded-lg shadow-xl w-full">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Need Help? -->
+    <section class="py-16 bg-blue-700 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold mb-6">Need Help With Your Delivery?</h2>
+            <p class="text-xl mb-8 max-w-3xl mx-auto">Our customer support team is available 24/7 to assist with any questions about your shipment.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#" class="bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition duration-300">Contact Support</a>
+                <a href="#" class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-700 transition duration-300">View FAQs</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-12 pb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Trinity Store</h3>
+                    <p class="text-gray-400">Bridging markets between Malawi and USA with quality products and seamless delivery.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="categories.html" class="text-gray-400 hover:text-white">Categories</a></li>
+                        <li><a href="payments.html" class="text-gray-400 hover:text-white">Payments</a></li>
+                        <li><a href="deliveries.html" class="text-gray-400 hover:text-white">Deliveries</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">FAQs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Terms & Conditions</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i data-feather="facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i data-feather="twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i data-feather="instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i data-feather="linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; 2023 Trinity Store. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+    </script>
+</body>
+</html>
