@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: http://static.photos">
+    <title>ShopNest - Register</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        secondary: '#10b981'
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Vanta.js background
+            VANTA.WAVES({
+                el: "#vanta-bg",
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 200.00,
+                minWidth: 200.00,
+                scale: 1.00,
+                scaleMobile: 1.00,
+                color: 0x4f46e5,
+                shininess: 50.00,
+                waveHeight: 20.00,
+                waveSpeed: 0.50,
+                zoom: 0.8
+            });
+
+            // Initialize feather icons
+            feather.replace();
+
+            // Setup form validation
+            setupFormValidation();
+        });
+
+        function setupFormValidation() {
+            const form = document.getElementById('register-form');
+            const firstName = document.getElementById('first-name');
+            const lastName = document.getElementById('last-name');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm-password');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validate inputs
+                if (!firstName.value.trim()) {
+                    showError('Please enter your first name');
+                    firstName.focus();
+                    return;
+                }
+                
+                if (!lastName.value.trim()) {
+                    showError('Please enter your last name');
+                    lastName.focus();
+                    return;
+                }
+                
+                if (!email.value.trim()) {
+                    showError('Please enter your email address');
+                    email.focus();
+                    return;
+                }
+                
+                if (!isValidEmail(email.value.trim())) {
+                    showError('Please enter a valid email address');
+                    email.focus();
+                    return;
+                }
+                
+                if (!password.value.trim()) {
+                    showError('Please enter your password');
+                    password.focus();
+                    return;
+                }
+                
+                if (password.value.trim().length < 8) {
+                    showError('Password must be at least 8 characters');
+                    password.focus();
+                    return;
+                }
+                
+                if (password.value.trim() !== confirmPassword.value.trim()) {
+                    showError('Passwords do not match');
+                    confirmPassword.focus();
+                    return;
+                }
+                
+                // Proceed with registration
+                await handleRegistration(
+                    firstName.value.trim(),
+                    lastName.value.trim(),
+                    email.value.trim(),
+                    password.value.trim()
+                );
+            });
+            
+            // Show/hide password toggle
+            document.getElementById('toggle-password').addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').setAttribute('data-feather', type === 'password' ? 'eye' : 'eye-off');
+                feather.replace();
+            });
+
+            // Show/hide confirm password toggle
+            document.getElementById('toggle-confirm-password').addEventListener('click', function() {
+                const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                confirmPassword.setAttribute('type', type);
+                this.querySelector('i').setAttribute('data-feather', type === 'password' ? 'eye' : 'eye-off');
+                feather.replace();
+            });
+            
+            // Login link
+            document.getElementById('login-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'login.html';
+            });
+        }
+
+        async function handleRegistration(firstName, lastName, email, password) {
+            try {
+                // Show loading state
+                const registerBtn = document.getElementById('register-btn');
+                registerBtn.disabled = true;
+                registerBtn.innerHTML = '<i data-feather="loader" class="animate-spin mr-2"></i> Registering...';
+                feather.replace();
+                
+                // In a real app, this would be an API call to your backend
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Mock check if email already exists
+                const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+                const userExists = existingUsers.some(user => user.email === email);
+                
+                if (userExists) {
+                    throw new Error('This email is already registered');
+                }
+                
+                // Create new user (in a real app, password would be hashed server-side)
+                const newUser = {
+                    id: 'usr-' + Math.random().toString(36).substr(2, 9),
+                    firstName,
+                    lastName,
+                    email,
+                    password, // In a real app, this would be hashed
+                    role: 'user',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Store user (in a real app, this would be done via API)
+                existingUsers.push(newUser);
+                localStorage.setItem('users', JSON.stringify(existingUsers));
+                
+                // Auto-login the user after registration
+                await handleAutoLogin(email, password);
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showError(error.message || 'Registration failed. Please try again.');
+                
+                // Reset button
+                const registerBtn = document.getElementById('register-btn');
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = '<i data-feather="user-plus" class="mr-2"></i> Register';
+                feather.replace();
+            }
+        }
+
+        async function handleAutoLogin(email, password) {
+            try {
+                // In a real app, this would be an API call to your backend
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Generate auth token (in a real app, this would come from your backend)
+                const authToken = generateAuthToken();
+                
+                // Store auth data as session cookie
+                Cookies.set('authToken', authToken);
+                
+                // Store user data and token hash for verification
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+                
+                if (!user) {
+                    throw new Error('User not found');
+                }
+                
+                const userData = {
+                    id: user.id,
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    role: user.role
+                };
+                
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('authTokenHash', CryptoJS.SHA256(authToken).toString());
+                
+                // Redirect to dashboard
+                window.location.href = 'index.html';
+                
+            } catch (error) {
+                console.error('Auto-login error:', error);
+                // Redirect to login page if auto-login fails
+                window.location.href = 'login.html';
+            }
+        }
+
+        function generateAuthToken() {
+            // In a real app, this would come from your backend
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let token = '';
+            for (let i = 0; i < 32; i++) {
+                token += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return token;
+        }
+
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function showError(message) {
+            Swal.fire({
+                title: 'Error',
+                text: message,
+                icon: 'error',
+                confirmButtonColor: '#4f46e5',
+            });
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="vanta-bg" class="fixed inset-0 -z-10"></div>
+    
+    <div class="container mx-auto px-4 py-12 flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white text-center">
+                    <h1 class="text-3xl font-bold">Create Account</h1>
+                    <p class="opacity-90">Join ShopNest today</p>
+                </div>
+
+                <!-- Register Form -->
+                <div class="p-8">
+                    <form id="register-form">
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="first-name" class="block text-gray-700 mb-1">First Name</label>
+                                    <input type="text" id="first-name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="John">
+                                </div>
+                                <div>
+                                    <label for="last-name" class="block text-gray-700 mb-1">Last Name</label>
+                                    <input type="text" id="last-name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="Doe">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="email" class="block text-gray-700 mb-1">Email Address</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i data-feather="mail" class="text-gray-400"></i>
+                                    </div>
+                                    <input type="email" id="email" class="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="your@email.com">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="password" class="block text-gray-700 mb-1">Password</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i data-feather="lock" class="text-gray-400"></i>
+                                    </div>
+                                    <input type="password" id="password" class="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="••••••••">
+                                    <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                        <i data-feather="eye" class="text-gray-400"></i>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Password must be at least 8 characters</p>
+                            </div>
+                            <div>
+                                <label for="confirm-password" class="block text-gray-700 mb-1">Confirm Password</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i data-feather="lock" class="text-gray-400"></i>
+                                    </div>
+                                    <input type="password" id="confirm-password" class="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="••••••••">
+                                    <button type="button" id="toggle-confirm-password" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                        <i data-feather="eye" class="text-gray-400"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="terms" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                <label for="terms" class="ml-2 text-gray-700 text-sm">I agree to the <a href="#" class="text-primary hover:text-primary-dark">Terms of Service</a> and <a href="#" class="text-primary hover:text-primary-dark">Privacy Policy</a></label>
+                            </div>
+                            <button id="register-btn" type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-lg transition flex items-center justify-center">
+                                <i data-feather="user-plus" class="mr-2"></i> Register
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-6 text-center">
+                        <p class="text-gray-600">Already have an account? <a href="login.html" id="login-link" class="text-primary hover:text-primary-dark font-medium">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

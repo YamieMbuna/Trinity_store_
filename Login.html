@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: http://static.photos">
+    <title>ShopNest - Login</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        secondary: '#10b981'
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Vanta.js background
+            VANTA.WAVES({
+                el: "#vanta-bg",
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 200.00,
+                minWidth: 200.00,
+                scale: 1.00,
+                scaleMobile: 1.00,
+                color: 0x4f46e5,
+                shininess: 50.00,
+                waveHeight: 20.00,
+                waveSpeed: 0.50,
+                zoom: 0.8
+            });
+
+            // Initialize feather icons
+            feather.replace();
+
+            // Check if user is already logged in
+            checkAuthStatus();
+
+            // Setup form validation
+            setupFormValidation();
+        });
+
+        function checkAuthStatus() {
+            const authToken = Cookies.get('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (authToken && userData) {
+                // Verify token (in a real app, this would be verified with the server)
+                const storedToken = localStorage.getItem('authTokenHash');
+                const computedHash = CryptoJS.SHA256(authToken).toString();
+                
+                if (storedToken === computedHash) {
+                    window.location.href = 'index.html';
+                } else {
+                    // Invalid token, clear all
+                    Cookies.remove('authToken');
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('authTokenHash');
+                }
+            }
+        }
+
+        function setupFormValidation() {
+            const form = document.getElementById('login-form');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const rememberMe = document.getElementById('remember-me');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validate inputs
+                if (!email.value.trim()) {
+                    showError('Please enter your email address');
+                    email.focus();
+                    return;
+                }
+                
+                if (!isValidEmail(email.value.trim())) {
+                    showError('Please enter a valid email address');
+                    email.focus();
+                    return;
+                }
+                
+                if (!password.value.trim()) {
+                    showError('Please enter your password');
+                    password.focus();
+                    return;
+                }
+                
+                if (password.value.trim().length < 8) {
+                    showError('Password must be at least 8 characters');
+                    password.focus();
+                    return;
+                }
+                
+                // Proceed with login
+                await handleLogin(email.value.trim(), password.value.trim(), rememberMe.checked);
+            });
+            
+            // Show/hide password toggle
+            document.getElementById('toggle-password').addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').setAttribute('data-feather', type === 'password' ? 'eye' : 'eye-off');
+                feather.replace();
+            });
+            
+            // Forgot password link
+            document.getElementById('forgot-password').addEventListener('click', function(e) {
+                e.preventDefault();
+                showForgotPasswordModal();
+            });
+            
+            // Register link
+            document.getElementById('register-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'register.html';
+            });
+        }
+
+        async function handleLogin(email, password, rememberMe) {
+            try {
+                // Show loading state
+                const loginBtn = document.getElementById('login-btn');
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i data-feather="loader" class="animate-spin mr-2"></i> Logging in...';
+                feather.replace();
+                
+                // In a real app, this would be an API call to your backend
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Mock user data - in a real app this would come from your backend
+                const mockUsers = {
+                    'user@example.com': { 
+                        password: 'Password123', 
+                        userData: { 
+                            id: 'usr-001', 
+                            email: 'user@example.com', 
+                            firstName: 'John', 
+                            lastName: 'Doe',
+                            role: 'user' 
+                        } 
+                    },
+                    'admin@example.com': { 
+                        password: 'Admin123', 
+                        userData: { 
+                            id: 'usr-002', 
+                            email: 'admin@example.com', 
+                            firstName: 'Admin', 
+                            lastName: 'User',
+                            role: 'admin' 
+                        } 
+                    }
+                };
+                
+                // Check if user exists and password matches
+                const user = mockUsers[email];
+                if (!user || user.password !== password) {
+                    throw new Error('Invalid email or password');
+                }
+                
+                // Generate auth token (in a real app, this would come from your backend)
+                const authToken = generateAuthToken();
+                
+                // Store auth data
+                if (rememberMe) {
+                    Cookies.set('authToken', authToken, { expires: 30 }); // 30 days
+                } else {
+                    Cookies.set('authToken', authToken); // Session cookie
+                }
+                
+                // Store user data and token hash for verification
+                localStorage.setItem('userData', JSON.stringify(user.userData));
+                localStorage.setItem('authTokenHash', CryptoJS.SHA256(authToken).toString());
+                
+                // Redirect to dashboard
+                window.location.href = 'index.html';
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(error.message || 'Login failed. Please try again.');
+                
+                // Reset button
+                const loginBtn = document.getElementById('login-btn');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i data-feather="log-in" class="mr-2"></i> Login';
+                feather.replace();
+            }
+        }
+
+        function generateAuthToken() {
+            // In a real app, this would come from your backend
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let token = '';
+            for (let i = 0; i < 32; i++) {
+                token += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return token;
+        }
+
+        function showForgotPasswordModal() {
+            Swal.fire({
+                title: 'Reset Password',
+                html: `
+                    <div class="text-left">
+                        <p class="mb-4">Enter your email address and we'll send you a link to reset your password.</p>
+                        <input type="email" id="reset-email" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="Your email address">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Send Reset Link',
+                confirmButtonColor: '#4f46e5',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const email = document.getElementById('reset-email').value.trim();
+                    if (!email || !isValidEmail(email)) {
+                        Swal.showValidationMessage('Please enter a valid email address');
+                        return false;
+                    }
+                    return email;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // In a real app, this would send a reset password email
+                    Swal.fire({
+                        title: 'Email Sent!',
+                        text: 'We have sent a password reset link to your email address.',
+                        icon: 'success',
+                        confirmButtonColor: '#4f46e5',
+                    });
+                }
+            });
+        }
+
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function showError(message) {
+            Swal.fire({
+                title: 'Error',
+                text: message,
+                icon: 'error',
+                confirmButtonColor: '#4f46e5',
+            });
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="vanta-bg" class="fixed inset-0 -z-10"></div>
+    
+    <div class="container mx-auto px-4 py-12 flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white text-center">
+                    <h1 class="text-3xl font-bold">Welcome Back</h1>
+                    <p class="opacity-90">Login to your ShopNest account</p>
+                </div>
+
+                <!-- Login Form -->
+                <div class="p-8">
+                    <form id="login-form">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="email" class="block text-gray-700 mb-1">Email Address</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i data-feather="mail" class="text-gray-400"></i>
+                                    </div>
+                                    <input type="email" id="email" class="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="your@email.com">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="password" class="block text-gray-700 mb-1">Password</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i data-feather="lock" class="text-gray-400"></i>
+                                    </div>
+                                    <input type="password" id="password" class="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="••••••••">
+                                    <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                        <i data-feather="eye" class="text-gray-400"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="remember-me" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                    <label for="remember-me" class="ml-2 text-gray-700">Remember me</label>
+                                </div>
+                                <a href="#" id="forgot-password" class="text-sm text-primary hover:text-primary-dark">Forgot password?</a>
+                            </div>
+                            <button id="login-btn" type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-lg transition flex items-center justify-center">
+                                <i data-feather="log-in" class="mr-2"></i> Login
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-6 text-center">
+                            <p class="text-gray-600">Don't have an account? <a href="register.html" id="register-link" class="text-primary hover:text-primary-dark font-medium">Register here</a></p>
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
